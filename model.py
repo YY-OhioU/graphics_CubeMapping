@@ -16,7 +16,7 @@ class BaseModel:
         self.program = self.vao.program
         self.camera = self.app.camera
 
-    def update(self): ...
+    def update(self, *args, **kwargs): ...
 
     def get_model_matrix(self):
         m_model = glm.mat4()
@@ -30,8 +30,8 @@ class BaseModel:
         m_model = glm.scale(m_model, self.scale)
         return m_model
 
-    def render(self):
-        self.update()
+    def render(self, cam):
+        self.update(cam)
         self.vao.render()
 
 
@@ -42,9 +42,10 @@ class ExtendedBaseModel(BaseModel):
         self.on_init()
 
     def update(self, cam=None):
+        camera = cam if cam else self.camera
         self.texture.use(location=0)
-        self.program['camPos'].write(self.camera.position)
-        self.program['m_view'].write(self.camera.m_view)
+        self.program['camPos'].write(camera.position)
+        self.program['m_view'].write(camera.m_view)
         self.program['m_model'].write(self.m_model)
 
     def update_shadow(self):
@@ -94,9 +95,9 @@ class MovingCube(Cube):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def update(self):
+    def update(self, cam):
         self.m_model = self.get_model_matrix()
-        super().update()
+        super().update(cam)
 
 
 class Cat(ExtendedBaseModel):
@@ -107,13 +108,14 @@ class Cat(ExtendedBaseModel):
 
 class ShinyBase(ExtendedBaseModel):
     def __init__(self, app, vao_name='shiny_cube', tex_id='skybox',
-                 pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
+                 pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1), hint=(0, 0, 0)):
+        self.hint = hint
         super().__init__(app, vao_name, tex_id, pos, rot, scale, use_shadow=False)
 
-    def update(self):
+    def update(self, cam):
         self.texture.use(location=0)
-        self.program['camPos'].write(self.camera.position)
-        self.program['m_view'].write(self.camera.m_view)
+        self.program['camPos'].write(cam.position)
+        self.program['m_view'].write(cam.m_view)
         self.program['m_model'].write(self.m_model)
 
     def on_init(self):
@@ -126,20 +128,25 @@ class ShinyBase(ExtendedBaseModel):
         self.program['m_view'].write(self.camera.m_view)
         self.program['m_model'].write(self.m_model)
         # cube mapping
-
+        self.program['hint'].write(glm.vec3(self.hint))
         self.program['camPos'].write(glm.vec3(self.camera.position))
 
 
 class ShinyCube(ShinyBase):
-    def __init__(self, app, vao_name='shiny_cube', tex_id='skybox',
+    def __init__(self, app, vao_name='shiny_cube', tex_id='env_cube',
                  pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
-        super().__init__(app, vao_name, tex_id, pos, rot, scale)
+        super().__init__(app, vao_name, tex_id, pos, rot, scale, hint=(0.2, 0.2, 0.1))
+
+    def update(self, cam):
+        super().update(cam)
+        self.m_model = self.get_model_matrix()
 
 
 class ShinyCat(ShinyBase):
     def __init__(self, app, vao_name='shiny_cat', tex_id='skybox',
                  pos=(0, 0, 0), rot=(-90, 0, 0), scale=(1, 1, 1)):
-        super().__init__(app, vao_name, tex_id, pos, rot, scale)
+        super().__init__(app, vao_name, tex_id, pos, rot, scale, hint=(0, 0, 0))
+        pass
 
 
 class SkyBox(BaseModel):
@@ -148,8 +155,8 @@ class SkyBox(BaseModel):
         super().__init__(app, vao_name, tex_id, pos, rot, scale)
         self.on_init()
 
-    def update(self):
-        self.program['m_view'].write(glm.mat4(glm.mat3(self.camera.m_view)))
+    def update(self, cam):
+        self.program['m_view'].write(glm.mat4(glm.mat3(cam.m_view)))
 
     def on_init(self):
         # texture
@@ -167,12 +174,18 @@ class AdvancedSkyBox(BaseModel):
         super().__init__(app, vao_name, tex_id, pos, rot, scale)
         self.on_init()
 
-    def update(self):
-        m_view = glm.mat4(glm.mat3(self.camera.m_view))
-        self.program['m_invProjView'].write(glm.inverse(self.camera.m_proj * m_view))
+    def update(self, cam):
+        m_view = glm.mat4(glm.mat3(cam.m_view))
+        self.program['m_invProjView'].write(glm.inverse(cam.m_proj * m_view))
 
     def on_init(self):
         # texture
         self.texture = self.app.mesh.texture.textures[self.tex_id]
         self.program['u_texture_skybox'] = 0
         self.texture.use(location=0)
+
+    def render(self, cam):
+        self.app.ctx.disable(flags=mgl.DEPTH_TEST)
+        self.update(cam)
+        self.vao.render()
+        self.app.ctx.enable(flags=mgl.DEPTH_TEST)

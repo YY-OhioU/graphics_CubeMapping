@@ -12,9 +12,10 @@ class Texture:
         self.textures[1] = self.get_texture(path='textures/img_1.png')
         self.textures[2] = self.get_texture(path='textures/img_2.png')
         self.textures['cat'] = self.get_texture(path='objects/cat/20430_cat_diff_v1.jpg')
-        self.textures['skybox'] = self.get_texture_cube(dir_path='textures/skybox1/', ext='png')
+        # self.textures['skybox'] = self.get_texture_cube(dir_path='textures/skybox/', ext='png')
+        self.textures['skybox'] = self.get_texture_cube(dir_path='textures/skybox3/', ext='jpg')
         self.textures['depth_texture'] = self.get_depth_texture()
-        self.textures['env_cube'] = self.ctx.texture_cube(size=self.app.WIN_SIZE, components=4)
+        self.textures['env_cube'] = self.ctx.texture_cube(size=(1000, 1000), components=3)
 
     def get_depth_texture(self):
         depth_texture = self.ctx.depth_texture(self.app.WIN_SIZE)

@@ -8,6 +8,7 @@ class ShaderProgram:
         self.programs['skybox'] = self.get_program('skybox')
         self.programs['advanced_skybox'] = self.get_program('advanced_skybox')
         self.programs['shadow_map'] = self.get_program('shadow_map')
+        self.programs['cube_mapping1'] = self.get_program('cube_mapping')
         self.programs['cube_mapping'] = self.get_program('cube_mapping')
 
     def get_program(self, shader_program_name):

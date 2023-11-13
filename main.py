@@ -2,7 +2,7 @@ import pygame as pg
 import moderngl as mgl
 import sys
 from model import *
-from camera import Camera
+from camera import Camera, CameraStatic
 from light import Light
 from mesh import Mesh
 from scene import Scene
@@ -10,7 +10,7 @@ from scene_renderer import SceneRenderer
 
 
 class GraphicsEngine:
-    def __init__(self, win_size=(1600, 900)):
+    def __init__(self, win_size=(1000, 1000)):
         # init pygame modules
         pg.init()
         # window size
@@ -27,8 +27,8 @@ class GraphicsEngine:
         # detect and use existing opengl context
         self.ctx = mgl.create_context()
         # self.ctx.front_face = 'cw'
-        # self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE)
-        self.ctx.enable(flags=mgl.DEPTH_TEST)
+        self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE)
+        # self.ctx.enable(flags=mgl.DEPTH_TEST)
         # create an object to help track time
         self.clock = pg.time.Clock()
         self.time = 0
@@ -36,11 +36,11 @@ class GraphicsEngine:
         # light
         self.light = Light()
         # camera
-        self.main_cam = Camera(self)
+        # self.main_cam = Camera(self)
         # # Cube mapping camera
-        self.camera_cube = Camera(self, fov=90)
+        self.camera_cube = CameraStatic(self)
 
-        self.camera = self.main_cam
+        self.camera = Camera(self)
         # mesh
         self.mesh = Mesh(self)
         # scene
@@ -50,6 +50,8 @@ class GraphicsEngine:
         # # enable wireframe
         # self.ctx.cull_face = 'front_and_back'
         # self.ctx.wireframe = True
+
+
 
     def check_events(self):
         for event in pg.event.get():

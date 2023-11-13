@@ -1,4 +1,6 @@
-# 3D-Graphics-Engine
-OpenGL Graphics Engine in Python ( Pygame, ModernGL ) 
+# Python based opengl cube mapping (static & dynamic)
+Demo code for cube mapping
 
-![opengl](/screenshot/0.jpg)
+Project based on: [3D-Graphics-Engine](https://github.com/StanislavPetrovV/3D-Graphics-Engine), by
+[@StanislavPetrovV](https://github.com/StanislavPetrovV)
+![opengl](/screenshot/screenshot_dcm.png)

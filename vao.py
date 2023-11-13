@@ -35,7 +35,7 @@ class VAO:
         )
 
         self.vaos['shiny_cube'] = self.get_vao(
-            program=self.program.programs['cube_mapping'],
+            program=self.program.programs['cube_mapping1'],
             vbo=self.vbo.vbos['cube']
         )
 
