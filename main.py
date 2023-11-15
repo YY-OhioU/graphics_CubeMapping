@@ -15,6 +15,7 @@ class GraphicsEngine:
         pg.init()
         # window size
         self.WIN_SIZE = win_size
+        self.font = pg.sysfont.SysFont('Verdana', 12)
         # set opengl attr
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, 3)
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION, 3)
@@ -51,8 +52,6 @@ class GraphicsEngine:
         # self.ctx.cull_face = 'front_and_back'
         # self.ctx.wireframe = True
 
-
-
     def check_events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
@@ -61,12 +60,22 @@ class GraphicsEngine:
                 pg.quit()
                 sys.exit()
 
+    def draw_fps(self):
+        fps = f"{self.clock.get_fps():.0f} FPS"
+        # text = self.font.render(fps, True, (255, 255, 255), (0, 0, 0))
+        # textRect = text.get_rect()
+        # textRect.topleft = (0, 0)
+        # self.display.blit(text, textRect)
+        pg.display.set_caption(fps)
+
+
     def render(self):
         # clear framebuffer
         self.ctx.clear(color=(0.08, 0.16, 0.18))
         # render scene
         self.scene_renderer.render()
         # swap buffers
+        self.draw_fps()
         pg.display.flip()
 
     def get_time(self):
@@ -84,33 +93,3 @@ class GraphicsEngine:
 if __name__ == '__main__':
     app = GraphicsEngine()
     app.run()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
