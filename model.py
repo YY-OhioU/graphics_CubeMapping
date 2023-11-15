@@ -108,12 +108,13 @@ class Cat(ExtendedBaseModel):
 
 class ShinyBase(ExtendedBaseModel):
     def __init__(self, app, vao_name='shiny_cube', tex_id='skybox',
-                 pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1), hint=(0, 0, 0)):
+                 pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1), hint=(0, 0, 0), tex_location=0):
         self.hint = hint
+        self.tex_location = tex_location
         super().__init__(app, vao_name, tex_id, pos, rot, scale, use_shadow=False)
 
     def update(self, cam):
-        self.texture.use(location=0)
+        self.texture.use(location=self.tex_location)
         self.program['camPos'].write(cam.position)
         self.program['m_view'].write(cam.m_view)
         self.program['m_model'].write(self.m_model)
@@ -121,8 +122,8 @@ class ShinyBase(ExtendedBaseModel):
     def on_init(self):
         # texture
         self.texture = self.app.mesh.texture.textures[self.tex_id]
-        self.program['environment'] = 0
-        self.texture.use(location=0)
+        self.program['environment'] = self.tex_location
+        self.texture.use(location=self.tex_location)
         # mvp
         self.program['m_proj'].write(self.camera.m_proj)
         self.program['m_view'].write(self.camera.m_view)
@@ -135,7 +136,7 @@ class ShinyBase(ExtendedBaseModel):
 class ShinyCube(ShinyBase):
     def __init__(self, app, vao_name='shiny_cube', tex_id='env_cube',
                  pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
-        super().__init__(app, vao_name, tex_id, pos, rot, scale, hint=(0.2, 0.2, 0.1))
+        super().__init__(app, vao_name, tex_id, pos, rot, scale, hint=(0.2, 0.2, 0.1), tex_location=1)
 
     def update(self, cam):
         super().update(cam)
@@ -145,7 +146,7 @@ class ShinyCube(ShinyBase):
 class ShinyCat(ShinyBase):
     def __init__(self, app, vao_name='shiny_cat', tex_id='skybox',
                  pos=(0, 0, 0), rot=(-90, 0, 0), scale=(1, 1, 1)):
-        super().__init__(app, vao_name, tex_id, pos, rot, scale, hint=(0, 0, 0))
+        super().__init__(app, vao_name, tex_id, pos, rot, scale, hint=(0, 0, 0), tex_location=0)
         pass
 
 
@@ -183,9 +184,9 @@ class AdvancedSkyBox(BaseModel):
         self.texture = self.app.mesh.texture.textures[self.tex_id]
         self.program['u_texture_skybox'] = 0
         self.texture.use(location=0)
-
-    def render(self, cam):
-        self.app.ctx.disable(flags=mgl.DEPTH_TEST)
-        self.update(cam)
-        self.vao.render()
-        self.app.ctx.enable(flags=mgl.DEPTH_TEST)
+    #
+    # def render(self, cam):
+    #     self.app.ctx.disable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE)
+    #     self.update(cam)
+    #     self.vao.render()
+    #     self.app.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE)

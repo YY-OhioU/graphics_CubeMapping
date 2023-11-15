@@ -1,4 +1,5 @@
 import glm
+import moderngl as mgl
 from PIL import Image
 
 
@@ -50,7 +51,7 @@ class SceneRenderer:
         # self.app.camera_cube.position = glm.vec3(-1*self.app.camera.position)
         # self.app.camera = self.app.camera_cube
         # self.cube_fbo.use()
-        self.app.camera_cube
+        # self.app.camera_cube
 
         for i in range(6):
             self.app.camera_cube.yaw, self.app.camera_cube.pitch = self.cube_angles[i]
@@ -62,10 +63,13 @@ class SceneRenderer:
             fbo = self.cube_fbo[i]
             fbo.clear()
             fbo.use()
+
             self.scene.skybox.render(self.app.camera_cube)
             for obj in self.scene.objects:
                 obj.render(self.app.camera_cube)
+
             self.cube_texture.write(face=i, data=fbo.read(components=3))
+
         #     data = fbo.read(components=4)
         #     image = Image.frombytes('RGBA', fbo.size, data)
         #     print(f"frame{i}.png")
@@ -75,11 +79,12 @@ class SceneRenderer:
 
     def main_render(self):
         self.app.ctx.screen.use()
-        self.scene.skybox.render(self.app.camera)
+
         for obj in self.scene.objects:
             obj.render(self.app.camera)
         if self.scene.d_reflector:
             self.scene.d_reflector.render(self.app.camera)
+        self.scene.skybox.render(self.app.camera)
 
 
     def render(self):
